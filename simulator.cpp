@@ -10,10 +10,7 @@
 #include <LabelTable.hpp>
 #include <MemoryElement.hpp>
 
-
-// TODO: Eventually, this should be removed.
-using namespace std;
-
+typedef std::vector<std::string> StringVec;
 
 /**
  * @brief Class for the MIPS Simulator.
@@ -21,19 +18,19 @@ using namespace std;
 class MIPSSimulator
 {
     // Array to store names of registers
-    string Registers[32];
+    std::string Registers[32];
     // Array to store values of registers
     int32_t RegisterValues[32];
     // Array to store names of instructions
-    string InstructionSet[17];
+    std::string InstructionSet[17];
     // To store the Mode of execution
     int32_t Mode;
     // To store the input program
-    vector<string> InputProgram;
+    StringVec InputProgram;
     // To store the number of lines in the program
     int32_t NumberOfInstructions;
     // To store the current instruction being worked with
-    string CurrentInstruction;
+    std::string CurrentInstruction;
     // To store the line number being worked with
     int32_t ProgramCounter;
     // To store the maximum length of the input program
@@ -43,9 +40,9 @@ class MIPSSimulator
     // To store register names, values, etc. for the instruction
     int32_t r[3];
     // To store all the labels and addresses
-    vector<LabelTable> TableOfLabels;
+    std::vector<LabelTable> TableOfLabels;
     // To store all the memory elements
-    vector<MemoryElement> Memory;
+    std::vector<MemoryElement> Memory;
     // Stack array
     int32_t Stack[100];
 
@@ -71,17 +68,17 @@ class MIPSSimulator
     int32_t ParseInstruction();
     void ReportError();
     void ExecuteInstruction(int32_t instruction);
-    void OnlySpaces(int32_t lower, int32_t upper, string str);
-    void RemoveSpaces(string &str);
-    void assertNumber(string str);
+    void OnlySpaces(int32_t lower, int32_t upper, std::string str);
+    void RemoveSpaces(std::string &str);
+    void assertNumber(std::string str);
     void findRegister(int32_t number);
-    string findLabel();
+    std::string findLabel();
     void assertRemoveComma();
     void checkStackBounds(int32_t index);
-    void assertLabelAllowed(string str);
+    void assertLabelAllowed(std::string str);
 
 public:
-    MIPSSimulator(int32_t mode, string fileName);
+    MIPSSimulator(int32_t mode, std::string fileName);
     void Execute();
     void displayState();
 };
@@ -121,14 +118,14 @@ void MIPSSimulator::Execute()
     displayState(); //display state at end
     if (halt_value==0) //if program ended without halt
     {
-        cout<<"Error: Program ended without halt"<<endl;
+        std::cout<<"Error: Program ended without halt"<<std::endl;
         exit(1);
     }
-    cout<<endl<<"Execution completed successfully"<<endl<<endl;
+    std::cout<<std::endl<<"Execution completed successfully"<<std::endl<<std::endl;
 }
 
 //constructor to initialize values for the simulator and pass the mode and the input file path
-MIPSSimulator::MIPSSimulator(int32_t mode, string fileName)
+MIPSSimulator::MIPSSimulator(int32_t mode, std::string fileName)
 {
     MaxLength = 10000; //maximum allowed length of input file
     NumberOfInstructions = 0;
@@ -136,7 +133,7 @@ MIPSSimulator::MIPSSimulator(int32_t mode, string fileName)
     halt_value = 0;
     Memory.clear();
     TableOfLabels.clear();
-    string tempRegisters[] = { "zero","at","v0","v1","a0","a1","a2","a3","t0","t1","t2","t3","t4","t5","t6",
+    std::string tempRegisters[] = { "zero","at","v0","v1","a0","a1","a2","a3","t0","t1","t2","t3","t4","t5","t6",
     "t7","s0","s1","s2","s3","s4","s5","s6","s7","t8","t9","k0","k1","gp","sp","s8","ra" }; //names of registers
     for (int32_t i = 0; i<32; i++)
     {
@@ -146,7 +143,7 @@ MIPSSimulator::MIPSSimulator(int32_t mode, string fileName)
     {
         RegisterValues[i] = 0; //initialize registers to 0
     }
-    string tempInstructionSet[] = { "add","sub","mul","and","or","nor","slt","addi","andi","ori","slti","lw",
+    std::string tempInstructionSet[] = { "add","sub","mul","and","or","nor","slt","addi","andi","ori","slti","lw",
     "sw","beq","bne","j","halt" }; //names of instructions allowed
     for (int32_t i = 0; i<17; i++)
     {
@@ -159,20 +156,20 @@ MIPSSimulator::MIPSSimulator(int32_t mode, string fileName)
     RegisterValues[29] = 40396; //stack pointer at bottom element
     RegisterValues[28] = 100000000;
     Mode = mode; //set mode
-    ifstream InputFile;
-    InputFile.open(fileName.c_str(), ios::in); //open file
+    std::ifstream InputFile;
+    InputFile.open(fileName.c_str(), std::ios::in); //open file
     if (!InputFile) //if open failed
     {
-        cout<<"Error: File does not exist or could not be opened"<<endl;
+        std::cout<<"Error: File does not exist or could not be opened"<<std::endl;
         exit(1);
     }
-    string tempString;
+    std::string tempString;
     while (getline(InputFile, tempString)) //read line by line
     {
         NumberOfInstructions++;
         if (NumberOfInstructions>MaxLength) ///check number of instructions with maximum allowed
         {
-            cout<<"Error: Number of lines in input too large, maximum allowed is "<<MaxLength<<" line"<<endl;
+            std::cout<<"Error: Number of lines in input too large, maximum allowed is "<<MaxLength<<" line"<<std::endl;
             exit(1);
         }
         InputProgram.push_back(tempString); //store in InputProgram
@@ -188,7 +185,7 @@ void MIPSSimulator::preprocess()
     int32_t index; //to hold index of ".data"
     int32_t commentindex;
     int32_t flag = 0; //whether "..data" found
-    string tempString = "";
+    std::string tempString = "";
     int	isLabel = 0;
     int	doneFlag = 0;
     int32_t dataStart = 0; //line number for start of data section
@@ -213,7 +210,7 @@ void MIPSSimulator::preprocess()
             dataStart = i; //set location where section starts
         } else if (flag==1) //for multiple findings of ".data"
         {
-            cout<<"Error: Multiple instances of .data"<<endl;
+            std::cout<<"Error: Multiple instances of .data"<<std::endl;
             ReportError();
         }
     }
@@ -233,7 +230,7 @@ void MIPSSimulator::preprocess()
             {
                 if (CurrentInstruction.find(".text")==-1) //if text section has not started
                 {
-                    cout<<"Error: Unexpected symbol in data section"<<endl;
+                    std::cout<<"Error: Unexpected symbol in data section"<<std::endl;
                     ReportError();
                 } else
                 {
@@ -242,7 +239,7 @@ void MIPSSimulator::preprocess()
             }
             if (LabelIndex==0) //if found at first place
             {
-                cout<<"Error: Label name expected"<<endl;
+                std::cout<<"Error: Label name expected"<<std::endl;
                 ReportError();
             }
             j = LabelIndex-1; //ignore spaces before ":" till label
@@ -259,7 +256,7 @@ void MIPSSimulator::preprocess()
                     tempString = CurrentInstruction[j]+tempString;
                 } else if (CurrentInstruction[j]!=' ' && CurrentInstruction[j]!='\t' && doneFlag==1) //if something found after name ends
                 {
-                    cout<<"Error: Unexpected text before label name"<<endl;
+                    std::cout<<"Error: Unexpected text before label name"<<std::endl;
                     ReportError();
                 } else //name ended
                 {
@@ -272,7 +269,7 @@ void MIPSSimulator::preprocess()
             int32_t wordIndex = CurrentInstruction.find(".word"); //search for ".word" in the same way
             if (wordIndex==-1)
             {
-                cout<<"Error: .word not found"<<endl;
+                std::cout<<"Error: .word not found"<<std::endl;
                 ReportError();
             }
             OnlySpaces(LabelIndex+1, wordIndex, CurrentInstruction);
@@ -286,7 +283,7 @@ void MIPSSimulator::preprocess()
                     doneFinding = 1;
                 } else if (foundValue==1 && CurrentInstruction[j]!=' ' && CurrentInstruction[j]!='\t' && doneFinding==1)
                 {
-                    cout<<"Error: Unexpected text after value"<<endl;
+                    std::cout<<"Error: Unexpected text after value"<<std::endl;
                     ReportError();
                 } else if (foundValue==0 && CurrentInstruction[j]!=' ' && CurrentInstruction[j]!='\t')
                 {
@@ -307,7 +304,7 @@ void MIPSSimulator::preprocess()
     {
         if (Memory[i].label==Memory[i+1].label)
         {
-            cout<<"Error: One or more labels are repeated"<<endl;
+            std::cout<<"Error: One or more labels are repeated"<<std::endl;
             exit(1);
         }
     }
@@ -333,13 +330,13 @@ void MIPSSimulator::preprocess()
             textStart = i;
         } else if (textFlag==1)
         {
-            cout<<"Error: Multiple instances of .text"<<endl;
+            std::cout<<"Error: Multiple instances of .text"<<std::endl;
             ReportError();
         }
     }
     if (current_section!=1) //if text section not found
     {
-        cout<<"Error: Text section does not exist or found unknown string"<<endl;
+        std::cout<<"Error: Text section does not exist or found unknown std::string"<<std::endl;
         exit(1);
     }
     int32_t MainIndex = 0; //location of main label
@@ -355,7 +352,7 @@ void MIPSSimulator::preprocess()
         LabelIndex = CurrentInstruction.find(":"); //find labels similar as above
         if (LabelIndex==0)
         {
-            cout<<"Error: Label name expected"<<endl;
+            std::cout<<"Error: Label name expected"<<std::endl;
             ReportError();
         }
         if (LabelIndex==-1)
@@ -378,11 +375,11 @@ void MIPSSimulator::preprocess()
                 tempString = CurrentInstruction[j]+tempString;
             } else if (CurrentInstruction[j]!=' ' && CurrentInstruction[j]!='\t' && doneFlag==1)
             {
-                cout<<"Error: Unexpected text before label name"<<endl;
+                std::cout<<"Error: Unexpected text before label name"<<std::endl;
                 ReportError();
             } else if (isLabel==0)
             {
-                cout<<"Error: Label name expected"<<endl;
+                std::cout<<"Error: Label name expected"<<std::endl;
                 ReportError();
             } else
             {
@@ -408,19 +405,19 @@ void MIPSSimulator::preprocess()
     {
         if (TableOfLabels[i].label==TableOfLabels[i+1].label)
         {
-            cout<<"Error: One or more labels are repeated"<<endl;
+            std::cout<<"Error: One or more labels are repeated"<<std::endl;
             exit(1);
         }
     }
     if (foundMain==0) //if main label not found
     {
-        cout<<"Error: Could not find main"<<endl;
+        std::cout<<"Error: Could not find main"<<std::endl;
         exit(1);
     }
     ProgramCounter = MainIndex; //set ProgramCounter
-    cout<<"Initialized and ready to execute. Current state is as follows:"<<endl;
+    std::cout<<"Initialized and ready to execute. Current state is as follows:"<<std::endl;
     displayState();
-    cout<<endl<<"Starting execution"<<endl<<endl;
+    std::cout<<std::endl<<"Starting execution"<<std::endl<<std::endl;
 }
 
 
@@ -431,9 +428,9 @@ void MIPSSimulator::preprocess()
 void MIPSSimulator::ReportError()
 {
     const int32_t line_number{ ProgramCounter + 1 };
-    const string instruction_line{ InputProgram[ProgramCounter] };
+    const std::string instruction_line{ InputProgram[ProgramCounter] };
 
-    cout << "Error found in line: "
+    std::cout << "Error found in line: "
         << line_number
         << ": "
         << instruction_line
@@ -480,7 +477,7 @@ int32_t MIPSSimulator::ParseInstruction()
     // No valid instruction is this small
     if (CurrentInstruction.size() < 4)
     {
-        cout << "Error: Unknown operation.\n";
+        std::cout << "Error: Unknown operation.\n";
         ReportError();
     }
 
@@ -490,7 +487,7 @@ int32_t MIPSSimulator::ParseInstruction()
             break;
 
     // Cut the operation out
-    string operation = CurrentInstruction.substr(0, j);
+    std::string operation = CurrentInstruction.substr(0, j);
     if (CurrentInstruction.size() > 0 && j < CurrentInstruction.size() - 1)
         CurrentInstruction = CurrentInstruction.substr(j + 1);
 
@@ -508,7 +505,7 @@ int32_t MIPSSimulator::ParseInstruction()
     // If not valid
     if (OperationID == -1)
     {
-        cout << "Error: Unknown operation.\n";
+        std::cout << "Error: Unknown operation.\n";
         ReportError();
     }
 
@@ -529,7 +526,7 @@ int32_t MIPSSimulator::ParseInstruction()
 
         if (CurrentInstruction!="") //if something more found
         {
-            cout<<"Error: Extra arguments provided"<<endl;
+            std::cout<<"Error: Extra arguments provided"<<std::endl;
             ReportError();
         }
     } else if (OperationID<11) //for I-format instructions
@@ -542,12 +539,12 @@ int32_t MIPSSimulator::ParseInstruction()
             assertRemoveComma();
         }
         RemoveSpaces(CurrentInstruction);
-        string tempString = findLabel(); //find third argument, a number
+        std::string tempString = findLabel(); //find third argument, a number
         assertNumber(tempString); //check validity
         r[2] = stoi(tempString); //convert and store
     } else if (OperationID<13) //for lw, sw
     {
-        string tempString = "";
+        std::string tempString = "";
         int32_t offset;
         RemoveSpaces(CurrentInstruction);
         findRegister(0); //find source/destination register
@@ -564,7 +561,7 @@ int32_t MIPSSimulator::ParseInstruction()
             }
             if (j==CurrentInstruction.size()) //if instruction ends there
             {
-                cout<<"Error: '(' expected"<<endl;
+                std::cout<<"Error: '(' expected"<<std::endl;
                 ReportError();
             }
             assertNumber(tempString); //check validity of offset
@@ -573,7 +570,7 @@ int32_t MIPSSimulator::ParseInstruction()
             RemoveSpaces(CurrentInstruction);
             if (CurrentInstruction=="" || CurrentInstruction[0]!='(' || CurrentInstruction.size()<2)
             {
-                cout<<"Error: '(' expected"<<endl;
+                std::cout<<"Error: '(' expected"<<std::endl;
                 ReportError();
             }
             CurrentInstruction = CurrentInstruction.substr(1);
@@ -582,7 +579,7 @@ int32_t MIPSSimulator::ParseInstruction()
             RemoveSpaces(CurrentInstruction);
             if (CurrentInstruction=="" || CurrentInstruction[0]!=')')
             {
-                cout<<"Error: ')' expected"<<endl;
+                std::cout<<"Error: ')' expected"<<std::endl;
                 ReportError();
             }
             CurrentInstruction = CurrentInstruction.substr(1);
@@ -590,7 +587,7 @@ int32_t MIPSSimulator::ParseInstruction()
             r[2] = offset;
             if (r[2]==-1) //-1 reserved for non offset type, anyway an invalid offset, others checked later
             {
-                cout<<"Error: Invalid offset"<<endl;
+                std::cout<<"Error: Invalid offset"<<std::endl;
                 ReportError();
             }
         } else //if label type
@@ -614,7 +611,7 @@ int32_t MIPSSimulator::ParseInstruction()
             }
             if (foundLocation==0) //if label not found
             {
-                cout<<"Error: Invalid label"<<endl;
+                std::cout<<"Error: Invalid label"<<std::endl;
                 ReportError();
             }
             r[2] = -1; //to indicate that it is not offset type
@@ -629,7 +626,7 @@ int32_t MIPSSimulator::ParseInstruction()
             assertRemoveComma();
         }
         RemoveSpaces(CurrentInstruction);
-        string tempString = findLabel(); //find label
+        std::string tempString = findLabel(); //find label
         int32_t foundAddress = 0;
         for (j = 0; j<TableOfLabels.size(); j++) //search for label
         {
@@ -642,14 +639,14 @@ int32_t MIPSSimulator::ParseInstruction()
         }
         if (foundAddress==0) //if label not found
         {
-            cout<<"Error: Invalid label"<<endl;
+            std::cout<<"Error: Invalid label"<<std::endl;
             ReportError();
         }
     } else if (OperationID==15) //for j
     {
         RemoveSpaces(CurrentInstruction);
         int32_t foundAddress = 0;
-        string tempString = findLabel(); //find jump label
+        std::string tempString = findLabel(); //find jump label
         for (j = 0; j<TableOfLabels.size(); j++) //search for label
         {
             if (tempString==TableOfLabels[j].label)
@@ -660,7 +657,7 @@ int32_t MIPSSimulator::ParseInstruction()
         }
         if (foundAddress==0) //if label not found
         {
-            cout<<"Error: Invalid label"<<endl;
+            std::cout<<"Error: Invalid label"<<std::endl;
             ReportError();
         }
     } else if (OperationID==16) // For halt.
@@ -670,13 +667,13 @@ int32_t MIPSSimulator::ParseInstruction()
 }
 
 //function to check that between lower and upper-1 indices, str has only spaces, else report an error
-void MIPSSimulator::OnlySpaces(int32_t lower, int32_t upper, string str)
+void MIPSSimulator::OnlySpaces(int32_t lower, int32_t upper, std::string str)
 {
     for (int32_t i = lower; i<upper; i++)
     {
         if (str[i]!=' ' && str[i]!='\t') //check that only ' ' and '\t' characters exist
         {
-            cout<<"Error: Unexpected character"<<endl;
+            std::cout<<"Error: Unexpected character"<<std::endl;
             ReportError();
         }
     }
@@ -741,13 +738,13 @@ void MIPSSimulator::ExecuteInstruction(int32_t instruction)
     case -2: //if instruction containing label, ignore
         break;
     default:
-        cout<<"Error: Invalid instruction received"<<endl;
+        std::cout<<"Error: Invalid instruction received"<<std::endl;
         ReportError();
     }
 }
 
 //function to remove spaces starting from first elements till they exist continuously in str
-void MIPSSimulator::RemoveSpaces(string &str)
+void MIPSSimulator::RemoveSpaces(std::string &str)
 {
     int32_t j = 0;
     while (j<str.size() && (str[j]==' ' || str[j]=='\t')) //till only ' ' or '\t' found
@@ -769,7 +766,7 @@ void MIPSSimulator::add()
         RegisterValues[r[0]] = RegisterValues[r[1]]+RegisterValues[r[2]]; //execute
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -786,7 +783,7 @@ void MIPSSimulator::addi()
         RegisterValues[r[0]] = RegisterValues[r[1]]+r[2];
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -803,7 +800,7 @@ void MIPSSimulator::sub()
         RegisterValues[r[0]] = RegisterValues[r[1]]-RegisterValues[r[2]];
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -820,7 +817,7 @@ void MIPSSimulator::mul()//last 32 bits?
         RegisterValues[r[0]] = RegisterValues[r[1]]*RegisterValues[r[2]];
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -837,7 +834,7 @@ void MIPSSimulator::andf()
         RegisterValues[r[0]] = RegisterValues[r[1]]&RegisterValues[r[2]];
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -854,7 +851,7 @@ void MIPSSimulator::andi()
         RegisterValues[r[0]] = RegisterValues[r[1]]&r[2];
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -871,7 +868,7 @@ void MIPSSimulator::orf()
         RegisterValues[r[0]] = RegisterValues[r[1]]|RegisterValues[r[2]];
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -888,7 +885,7 @@ void MIPSSimulator::ori()
         RegisterValues[r[0]] = RegisterValues[r[1]]|r[2];
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -905,7 +902,7 @@ void MIPSSimulator::nor()
         RegisterValues[r[0]] = ~(RegisterValues[r[1]]|RegisterValues[r[2]]);
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -918,7 +915,7 @@ void MIPSSimulator::slt()
         RegisterValues[r[0]] = RegisterValues[r[1]]<RegisterValues[r[2]];
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -931,7 +928,7 @@ void MIPSSimulator::slti()
         RegisterValues[r[0]] = RegisterValues[r[1]]<r[2];
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -952,7 +949,7 @@ void MIPSSimulator::lw()
         RegisterValues[r[0]] = Stack[(RegisterValues[r[1]]+r[2]-40000)/4];
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -969,7 +966,7 @@ void MIPSSimulator::sw()
         Stack[(RegisterValues[r[1]]+r[2]-40000)/4] = RegisterValues[r[0]];
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -988,7 +985,7 @@ void MIPSSimulator::beq()
         }
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -1007,7 +1004,7 @@ void MIPSSimulator::bne()
         }
     } else
     {
-        cout<<"Error: Invalid usage of registers"<<endl;
+        std::cout<<"Error: Invalid usage of registers"<<std::endl;
         ReportError();
     }
 }
@@ -1030,20 +1027,20 @@ void MIPSSimulator::displayState()
     int32_t current_address = 40000; //starting address of memory
     if (ProgramCounter<NumberOfInstructions) //display current instruction
     {
-        cout<<endl<<"Executing instruction: "<<InputProgram[ProgramCounter]<<endl;
+        std::cout<<std::endl<<"Executing instruction: "<<InputProgram[ProgramCounter]<<std::endl;
     } else
     {
-        cout<<endl<<"Executing instruction: "<<InputProgram[ProgramCounter-1]<<endl; //to display at the end, where ProgramCounter==NumberOfInstructions and is out of bounds
+        std::cout<<std::endl<<"Executing instruction: "<<InputProgram[ProgramCounter-1]<<std::endl; //to display at the end, where ProgramCounter==NumberOfInstructions and is out of bounds
     }
-    cout<<endl<<"Program Counter: "<<(4*ProgramCounter)<<endl<<endl; //display ProgramCounter
-    cout<<"Registers:"<<endl<<endl;
+    std::cout<<std::endl<<"Program Counter: "<<(4*ProgramCounter)<<std::endl<<std::endl; //display ProgramCounter
+    std::cout<<"Registers:"<<std::endl<<std::endl;
     printf("%11s%12s\t\t%10s%12s\n", "Register", "Value", "Register", "Value");
     for (int32_t i = 0; i<16; i++) //display registers
     {
         printf("%6s[%2d]:%12d\t\t%5s[%2d]:%12d\n", Registers[i].c_str(), i, RegisterValues[i], Registers[i+16].c_str(), i+16, RegisterValues[i+16]);
     }
-    cout<<endl<<"Memory:"<<endl<<endl; //display memory
-    cout<<"Address    Label   Value      Address    Label   Value    Address    Label   Value     Address    Label   Value     Address    Label   Value    "<<endl;
+    std::cout<<std::endl<<"Memory:"<<std::endl<<std::endl; //display memory
+    std::cout<<"Address    Label   Value      Address    Label   Value    Address    Label   Value     Address    Label   Value     Address    Label   Value    "<<std::endl;
     for (int32_t i = 0; i<20; i++) //stack
     {
         printf("%7x%8s:%8d\t%5x%8s:%8d\t%9x%8s:%8d\t%6x%8s:%8d\t%11x%8s:%8d\n", current_address+4*i, "<Stack>", Stack[i], current_address+4*(i+20), "<Stack>", Stack[i+20], current_address+4*(i+40), "<Stack>", Stack[i+40], current_address+4*(i+60), "<Stack>", Stack[i+60], current_address+4*(i+80), "<Stack>", Stack[i+80]);
@@ -1053,11 +1050,11 @@ void MIPSSimulator::displayState()
     {
         printf("%7x%8s:%8d\n", 40400+4*i, Memory[i].label.c_str(), Memory[i].value);
     }
-    cout<<endl;
+    std::cout<<std::endl;
 }
 
 //function to check that an stoi() on str would be valid, i.e., that str can be converted to an integer
-void MIPSSimulator::assertNumber(string str)
+void MIPSSimulator::assertNumber(std::string str)
 {
     for (int32_t j = 0; j<str.size(); j++) //check that each character is a digit
     {
@@ -1067,17 +1064,17 @@ void MIPSSimulator::assertNumber(string str)
         }
         if (str[j]<48 || str[j]>57)
         {
-            cout<<"Error: Specified value is not a number"<<endl;
+            std::cout<<"Error: Specified value is not a number"<<std::endl;
             ReportError();
         }
     }
     if (str[0]!='-' && (str.size()>10 || (str.size()==10 && str>"2147483647"))) //check against maximum allowed for 32 bit integer
     {
-        cout<<"Error: Number out of range"<<endl;
+        std::cout<<"Error: Number out of range"<<std::endl;
         ReportError();
     } else if (str[0]=='-' && (str.size()>11 || (str.size()==11 && str>"-2147483648"))) //same check as above for negative integers
     {
-        cout<<"Error: Number out of range"<<endl;
+        std::cout<<"Error: Number out of range"<<std::endl;
         ReportError();
     }
 }
@@ -1088,17 +1085,17 @@ void MIPSSimulator::findRegister(int32_t number)
     int32_t foundRegister = 0;
     if (CurrentInstruction[0]!='$' || CurrentInstruction.size()<2) //find '$' sign
     {
-        cout<<"Error: Register expected"<<endl;
+        std::cout<<"Error: Register expected"<<std::endl;
         ReportError();
     }
     CurrentInstruction = CurrentInstruction.substr(1); //remove '$' sign
-    string registerID = CurrentInstruction.substr(0, 2); //next two characters to match
+    std::string registerID = CurrentInstruction.substr(0, 2); //next two characters to match
     if (registerID=="ze" && CurrentInstruction.size()>=4) //for $zero, need four characters
     {
         registerID += CurrentInstruction.substr(2, 2);
     } else if (registerID=="ze")
     {
-        cout<<"Error: Register expected"<<endl;
+        std::cout<<"Error: Register expected"<<std::endl;
         ReportError();
     }
     for (int32_t i = 0; i<32; i++)
@@ -1115,16 +1112,16 @@ void MIPSSimulator::findRegister(int32_t number)
     }
     if (foundRegister==0) //if register not found
     {
-        cout<<"Error: Invalid register"<<endl;
+        std::cout<<"Error: Invalid register"<<std::endl;
         ReportError();
     }
 }
 
 //function to find and return the label name
-string MIPSSimulator::findLabel()
+std::string MIPSSimulator::findLabel()
 {
     RemoveSpaces(CurrentInstruction); //remove spaces
-    string tempString = ""; //to store label
+    std::string tempString = ""; //to store label
     int32_t foundValue = 0; //found
     int32_t doneFinding = 0; //completed finding
     for (int32_t j = 0; j<CurrentInstruction.size(); j++)
@@ -1134,7 +1131,7 @@ string MIPSSimulator::findLabel()
             doneFinding = 1; //when space encountered after start, label finding done
         } else if (foundValue==1 && CurrentInstruction[j]!=' ' && CurrentInstruction[j]!='\t' && doneFinding==1)
         {
-            cout<<"Error: Unexpected text after value"<<endl; //if non space encountered after done, some incorrect character found
+            std::cout<<"Error: Unexpected text after value"<<std::endl; //if non space encountered after done, some incorrect character found
             ReportError();
         } else if (foundValue==0 && CurrentInstruction[j]!=' ' && CurrentInstruction[j]!='\t')
         {
@@ -1153,7 +1150,7 @@ void MIPSSimulator::assertRemoveComma()
 {
     if (CurrentInstruction.size()<2 || CurrentInstruction[0]!=',') //check that first element exists and is a comma
     {
-        cout<<"Error: Comma expected"<<endl;
+        std::cout<<"Error: Comma expected"<<std::endl;
         ReportError();
     }
     CurrentInstruction = CurrentInstruction.substr(1); //remove it
@@ -1164,7 +1161,7 @@ void MIPSSimulator::checkStackBounds(int32_t index)
 {
     if (!(index<=40396 && index>=40000 && index%4==0)) //check that address is within stack bounds and a multiple of 4
     {
-        cout<<"Error: Invalid address for stack pointer. To access data section, use labels instead of addresses"<<endl;
+        std::cout<<"Error: Invalid address for stack pointer. To access data section, use labels instead of addresses"<<std::endl;
         ReportError();
     }
 }
@@ -1185,13 +1182,13 @@ constexpr bool is_ascii_alphanumerical(char character)
  * @brief Check that the label name does not start with a number and does
  *        not contain special characters.
 */
-void MIPSSimulator::assertLabelAllowed(string str)
+void MIPSSimulator::assertLabelAllowed(std::string str)
 {
     // Check that label size is at least one and the first value is not
     // an integer.
     if (str.size() == 0 || (str[0] >= '0' && str[0] <= '9'))
     {
-        cout << "Error: Invalid label: Label begins with a \n";
+        std::cout << "Error: Invalid label: Label begins with a \n";
         ReportError();
     }
 
@@ -1200,7 +1197,7 @@ void MIPSSimulator::assertLabelAllowed(string str)
         // Check that only numbers and letters are used.
         if (!is_ascii_alphanumerical(str[i]))
         {
-            cout << "Error: Invalid label.\n";
+            std::cout << "Error: Invalid label.\n";
             ReportError();
         }
     }
@@ -1225,24 +1222,24 @@ int32_t sort_table(LabelTable a, LabelTable b)
 }
 
 
-int main(const int32_t argc, const char *argv[])
+int main()
 {
-    string  path;
+    std::string  path;
     int32_t mode;
 
-    cout << "\nMIPS Simulator\n\n";
+    std::cout << "\nMIPS Simulator\n\n";
 
-    cout << "Program to simulate execution in MIPS Assembly language. Two modes are available:\n\n"
+    std::cout << "Program to simulate execution in MIPS Assembly language. Two modes are available:\n\n"
         << "1. Step by Step Mode - View state after each instruction\n"
         << "2. Execution Mode - View state after end of execution\n\n";
 
-    cout << "Enter the relative path of the input file and the mode number:\n";
+    std::cout << "Enter the relative path of the input file and the mode number:\n";
 
-    cin >> path >> mode;
+    std::cin >> path >> mode;
     // If mode is invalid
     if (mode != 1 && mode != 2)
     {
-        cout << "Error: Invalid Mode.\nExiting...\n";
+        std::cout << "Error: Invalid Mode.\nExiting...\n";
         return 1;
     }
 

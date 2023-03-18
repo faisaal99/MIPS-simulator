@@ -1,4 +1,4 @@
 language: cpp
 compiler:
     - g++
-script: g++ simulator.cpp --std=c++0x
+script: g++ simulator.cpp --std=c++20

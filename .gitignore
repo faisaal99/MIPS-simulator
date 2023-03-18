@@ -4,3 +4,5 @@ testprograms
 simulator
 *.txt
 *.pdf
+x64/
+.vs/

@@ -107,11 +107,15 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="simulator.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\LabelTable.cpp" />
+    <ClCompile Include="src\MemoryElement.cpp" />
+    <ClCompile Include="src\MIPSSimulator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\LabelTable.hpp" />
     <ClInclude Include="src\MemoryElement.hpp" />
+    <ClInclude Include="src\MIPSSimulator.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
